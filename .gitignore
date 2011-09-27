@@ -5,6 +5,8 @@
 *.bz2
 *.gir
 *.typelib
+*.orig
+cscope.*
 Makefile
 Makefile.in*
 configure

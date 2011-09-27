@@ -166,6 +166,17 @@ global:
 	nm_setting_bluetooth_get_connection_type;
 	nm_setting_bluetooth_get_type;
 	nm_setting_bluetooth_new;
+	nm_setting_bond_error_get_type;
+	nm_setting_bond_error_quark;
+	nm_setting_bond_new;
+	nm_setting_bond_get_type;
+	nm_setting_bond_get_device_name;
+	nm_setting_bond_get_mode;
+	nm_setting_bond_get_miimon;
+	nm_setting_bond_get_downdelay;
+	nm_setting_bond_get_updelay;
+	nm_setting_bond_get_arp_interval;
+	nm_setting_bond_get_arp_ip_target;
 	nm_setting_cdma_error_get_type;
 	nm_setting_cdma_error_quark;
 	nm_setting_cdma_get_number;

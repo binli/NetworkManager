@@ -45,9 +45,9 @@ G_BEGIN_DECLS
  * required
  */
 typedef enum {
-       NM_SETTING_BOND_ERROR_UNKNOWN = 0,
-       NM_SETTING_BOND_ERROR_INVALID_PROPERTY,
-       NM_SETTING_BOND_ERROR_MISSING_PROPERTY
+	NM_SETTING_BOND_ERROR_UNKNOWN = 0,
+	NM_SETTING_BOND_ERROR_INVALID_PROPERTY,
+	NM_SETTING_BOND_ERROR_MISSING_PROPERTY
 } NMSettingBondError;
 
 #define NM_TYPE_SETTING_BOND_ERROR (nm_setting_bond_error_get_type ())
@@ -65,17 +65,17 @@ GQuark nm_setting_bond_error_quark (void);
 #define NM_SETTING_BOND_ARP_IP_TARGET "arp-ip-target"
 
 typedef struct {
-       NMSetting parent;
+	NMSetting parent;
 } NMSettingBond;
 
 typedef struct {
-       NMSettingClass parent;
+	NMSettingClass parent;
 
-       /* Padding for future expansion */
-       void (*_reserved1) (void);
-       void (*_reserved2) (void);
-       void (*_reserved3) (void);
-       void (*_reserved4) (void);
+	/* Padding for future expansion */
+	void (*_reserved1) (void);
+	void (*_reserved2) (void);
+	void (*_reserved3) (void);
+	void (*_reserved4) (void);
 } NMSettingBondClass;
 
 GType nm_setting_bond_get_type (void);

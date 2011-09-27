@@ -44,6 +44,7 @@
 #define TYPE_ETHERNET "Ethernet"
 #define TYPE_WIRELESS "Wireless"
 #define TYPE_BRIDGE   "Bridge"
+#define TYPE_BOND     "Bond"
 
 #define SECRET_FLAG_AGENT "user"
 #define SECRET_FLAG_NOT_SAVED "ask"

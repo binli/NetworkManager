@@ -44,6 +44,7 @@
 #include "nm-setting-wireless-security.h"
 #include "nm-setting-vpn.h"
 #include "nm-setting-olpc-mesh.h"
+#include "nm-setting-bond.h"
 
 #include "nm-setting-serial.h"
 #include "nm-setting-gsm.h"
@@ -135,7 +136,7 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 static GHashTable *registered_settings = NULL;
 
-#define DEFAULT_MAP_SIZE 16
+#define DEFAULT_MAP_SIZE 17
 
 static struct SettingInfo {
 	const char *name;
@@ -240,6 +241,11 @@ register_default_settings (void)
 	register_one_setting (NM_SETTING_WIMAX_SETTING_NAME,
 	                      NM_TYPE_SETTING_WIMAX,
 	                      NM_SETTING_WIMAX_ERROR,
+	                      1, TRUE);
+
+	register_one_setting (NM_SETTING_BOND_SETTING_NAME,
+	                      NM_TYPE_SETTING_BOND,
+	                      NM_SETTING_BOND_ERROR,
 	                      1, TRUE);
 
 	register_one_setting (NM_SETTING_WIRELESS_SECURITY_SETTING_NAME,
