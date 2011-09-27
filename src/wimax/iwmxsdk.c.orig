@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <linux/if.h>
+#include <net/if.h>
 
 #include <glib.h>
 
