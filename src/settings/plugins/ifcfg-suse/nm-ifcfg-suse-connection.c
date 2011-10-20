@@ -15,10 +15,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+ * Copyright (C) 2008 - 2011 Red Hat, Inc.
  * Copyright (C) 2011 SUSE.
  */
 
+#include <nm-setting-connection.h>
 #include "nm-ifcfg-suse-connection.h"
+#include "reader.h"
 
 G_DEFINE_TYPE (NMIfcfgSUSEConnection, nm_ifcfg_suse_connection, NM_TYPE_SETTINGS_CONNECTION)
 
@@ -27,7 +30,7 @@ G_DEFINE_TYPE (NMIfcfgSUSEConnection, nm_ifcfg_suse_connection, NM_TYPE_SETTINGS
 typedef struct {
 	gulong ih_event_id;
 
-	char *path;
+	char *path; /*  */
 	int file_wd;
 
 	char *keyfile;
@@ -39,8 +42,14 @@ typedef struct {
 	char *route6file;
 	int route6file_wd;
 
-	char *unmanaged;
+	char *unmanaged; /* when it's vlan, bridge or bond, it should be unmanaged */
 } NMIfcfgSUSEConnectionPrivate;
+
+enum {
+	PROP_0,
+	PROP_UNMANAGED,
+	LAST_PROP
+};
 
 NMIfcfgSUSEConnection *
 nm_ifcfg_suse_connection_new (const char *full_path,
@@ -52,6 +61,8 @@ nm_ifcfg_suse_connection_new (const char *full_path,
 	NMIfcfgSUSEConnectionPrivate *priv;
 	NMConnection *tmp;
 	char *unmanaged = NULL;
+	char *ifroutefile = NULL;
+	char *routesfile = NULL;
 
 	g_return_val_if_fail (full_path != NULL, NULL);
 
@@ -61,9 +72,8 @@ nm_ifcfg_suse_connection_new (const char *full_path,
 	else {
 		tmp = connection_from_file (full_path, NULL, NULL, NULL,
 		                            &unmanaged,
-		                            &keyfile,
-		                            &routefile,
-		                            &route6file,
+		                            &ifroutefile,
+		                            &routesfile,
 		                            error,
 		                            ignore_error);
 		if (!tmp)
@@ -75,8 +85,28 @@ nm_ifcfg_suse_connection_new (const char *full_path,
 	                                   NULL);
 	if (!object)
 		goto out;
+
+out:
+	g_object_unref (tmp);
 	return (NMIfcfgSUSEConnection *) object;
 }
+
+const char *
+nm_ifcfg_suse_connection_get_path (NMIfcfgSUSEConnection *self)
+{
+	g_return_val_if_fail (NM_IS_IFCFG_SUSE_CONNECTION (self), NULL);
+
+	return NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (self)->path;
+}
+
+const char *
+nm_ifcfg_suse_connection_get_unmanaged_spec (NMIfcfgSUSEConnection *self)
+{
+	g_return_val_if_fail (NM_IS_IFCFG_SUSE_CONNECTION (self), NULL);
+
+	return NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (self)->unmanaged;
+}
+
 
 static void
 commit_changes (NMSettingsConnection *connection,
@@ -92,7 +122,7 @@ do_delete (NMSettingsConnection *connection,
 {
 	NMIfcfgSUSEConnectionPrivate *priv = NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (connection);
 
-	NM_SETTINGS_SUSE_CONNECTION_CLASS (nm_ifcfg_suse_connection_parent_class)->delete (connection, callback, user_data);
+	NM_SETTINGS_CONNECTION_CLASS (nm_ifcfg_suse_connection_parent_class)->delete (connection, callback, user_data);
 }
 
 static void

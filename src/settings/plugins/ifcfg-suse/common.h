@@ -16,11 +16,21 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+ * (C) Copyright 2008 - 2010 Red Hat, Inc.
  * (C) Copyright 2011 SUSE.
  */
 
 #ifndef __COMMON_H__
 #define __COMMON_H__
+
+#define IFCFG_TAG "ifcfg-"
+#define IFROUTE_TAG "ifroute-" /* routes used only for specific interface */
+#define ROUTES_TAG "routes" /* routes used for every interface */
+
+#define BAK_TAG ".bak"
+#define TILDE_TAG "~"
+#define ORIG_TAG ".orig"
+#define REJ_TAG ".rej"
 
 #define IFCFG_DIR SYSCONFDIR"/sysconfig/network"
 

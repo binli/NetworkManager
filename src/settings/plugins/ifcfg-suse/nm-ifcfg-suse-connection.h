@@ -15,6 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+ * Copyright (C) 2008 - 2011 Red Hat, Inc.
  * Copyright (C) 2011 SUSE.
  */
 
@@ -45,14 +46,14 @@ typedef struct {
 
 GType nm_ifcfg_suse_connection_get_type (void);
 
-NMIfcfgConnection *nm_ifcfg_suse_connection_new (const char *filename,
+NMIfcfgSUSEConnection *nm_ifcfg_suse_connection_new (const char *filename,
                                                  NMConnection *source,
                                                  GError **error,
                                                  gboolean *ignore_error);
 
-const char *nm_ifcfg_suse_connection_get_path (NMIfcfgSUSEConnection *self);
+const char *nm_ifcfg_suse_connection_get_path (NMIfcfgSUSEConnection *self); /* done */
 
-const char *nm_ifcfg_suse_connection_get_unmanaged_spec (NMIfcfgSUSEConnection *self);
+const char *nm_ifcfg_suse_connection_get_unmanaged_spec (NMIfcfgSUSEConnection *self); /* done */
 
 gboolean nm_ifcfg_suse_connection_update (NMIfcfgSUSEConnection *self,
                                           GHashTable *new_settings,

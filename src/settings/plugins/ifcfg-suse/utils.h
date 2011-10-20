@@ -15,26 +15,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2008 - 2011 Red Hat, Inc.
- * Copyright (C) 2011 SUSE.
+ * (C) Copyright 2008 - 2010 Red Hat, Inc.
+ * (C) Copyright 2011 SUSE.
  */
 
-#ifndef __READER_H__
-#define __READER_H__
+#ifndef _UTILS_H_
+#define _UTILS_H_
 
 #include <glib.h>
-#include <nm-connection.h>
+#include "common.h"
 
-NMConnection *connection_from_file (const char *filename,
-                                    const char *network_file,  /* for unit tests only */
-                                    const char *test_type,     /* for unit tests only */
-                                    const char *iscsiadm_path, /* for unit tests only */
-                                    char **unmanaged,
-                                    char **ifroutefile,
-                                    char **routesfile,
-                                    GError **error,
-                                    gboolean *ignore_error);
+gboolean utils_should_ignore_file (const char *filename, gboolean only_ifcfg);
 
-const char *reader_get_prefix (void);
-
-#endif  /* __READER_H__ */
+#endif  /* _UTILS_H_ */

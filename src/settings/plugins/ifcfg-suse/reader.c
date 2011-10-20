@@ -15,6 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+ * Copyright (C) 2008 - 2011 Red Hat, Inc.
  * Copyright (C) 2011 SUSE.
  */
 
@@ -27,9 +28,8 @@ connection_from_file (const char *filename,
                       const char *test_type,     /* for unit tests only */
                       const char *iscsiadm_path, /* for unit tests only */
                       char **unmanaged,
-                      char **keyfile,
-                      char **routefile,
-                      char **route6file,
+                      char **ifroutefile,
+                      char **routesfile,
                       GError **out_error,
                       gboolean *ignore_error)
 {
