@@ -25,6 +25,10 @@
 #include <glib.h>
 #include "common.h"
 
+const char *utils_get_ifcfg_name (const char *file, gboolean only_ifcfg);
+
+char *utils_get_ifcfg_path (const char *parent);
+
 gboolean utils_should_ignore_file (const char *filename, gboolean only_ifcfg);
 
 #endif  /* _UTILS_H_ */

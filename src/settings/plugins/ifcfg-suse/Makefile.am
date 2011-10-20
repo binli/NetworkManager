@@ -4,6 +4,8 @@ pkglib_LTLIBRARIES = libnm-settings-plugin-ifcfg-suse.la
 noinst_LTLIBRARIES = libifcfg-suse-io.la
 
 libifcfg_suse_io_la_SOURCES = \
+	shvar.c \
+	shvar.h \
 	reader.c \
 	reader.h \
 	errors.c \

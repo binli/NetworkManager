@@ -58,7 +58,7 @@ nm_ifcfg_suse_connection_new (const char *full_path,
                               gboolean *ignore_error)
 {
 	GObject *object;
-	NMIfcfgSUSEConnectionPrivate *priv;
+	//NMIfcfgSUSEConnectionPrivate *priv;
 	NMConnection *tmp;
 	char *unmanaged = NULL;
 	char *ifroutefile = NULL;
@@ -70,7 +70,7 @@ nm_ifcfg_suse_connection_new (const char *full_path,
 	if (source)
 		tmp = g_object_ref (source);
 	else {
-		tmp = connection_from_file (full_path, NULL, NULL, NULL,
+		tmp = connection_from_file (full_path, NULL, NULL,
 		                            &unmanaged,
 		                            &ifroutefile,
 		                            &routesfile,
@@ -120,7 +120,7 @@ do_delete (NMSettingsConnection *connection,
 	       NMSettingsConnectionDeleteFunc callback,
 	       gpointer user_data)
 {
-	NMIfcfgSUSEConnectionPrivate *priv = NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (connection);
+	//NMIfcfgSUSEConnectionPrivate *priv = NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (connection);
 
 	NM_SETTINGS_CONNECTION_CLASS (nm_ifcfg_suse_connection_parent_class)->delete (connection, callback, user_data);
 }
@@ -133,8 +133,8 @@ nm_ifcfg_suse_connection_init (NMIfcfgSUSEConnection *connection)
 static void
 finalize (GObject *object)
 {
-	NMIfcfgSUSEConnectionPrivate *priv = NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (object);
-	/*NMInotifyHelper *ih;
+	/*NMIfcfgSUSEConnectionPrivate *priv = NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (object);
+	NMInotifyHelper *ih;
 
 	nm_connection_clear_secrets (NM_CONNECTION (object));
 

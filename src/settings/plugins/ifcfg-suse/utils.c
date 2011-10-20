@@ -103,3 +103,38 @@ utils_get_ifcfg_name (const char *file, gboolean only_ifcfg)
 
 	return name;
 }
+
+/* Used to get any ifcfg/extra file path from any other ifcfg/extra path
+ * in the form <tag><name>.
+ */
+static char *
+utils_get_extra_path (const char *parent, const char *tag)
+{
+	char *item_path = NULL, *dirname;
+	const char *name;
+
+	g_return_val_if_fail (parent != NULL, NULL);
+	g_return_val_if_fail (tag != NULL, NULL);
+
+	dirname = g_path_get_dirname (parent);
+	if (!dirname)
+		return NULL;
+
+	name = utils_get_ifcfg_name (parent, FALSE);
+	if (name) {
+		if (!strcmp (dirname, "."))
+			item_path = g_strdup_printf ("%s%s", tag, name);
+		else
+			item_path = g_strdup_printf ("%s/%s%s", dirname, tag, name);
+	}
+	g_free (dirname);
+
+	return item_path;
+}
+
+char *
+utils_get_ifcfg_path (const char *parent)
+{
+	return utils_get_extra_path (parent, IFCFG_TAG);
+}
+

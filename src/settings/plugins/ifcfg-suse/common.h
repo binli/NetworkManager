@@ -23,6 +23,8 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+#include <glib.h>
+
 #define IFCFG_TAG "ifcfg-"
 #define IFROUTE_TAG "ifroute-" /* routes used only for specific interface */
 #define ROUTES_TAG "routes" /* routes used for every interface */
@@ -32,6 +34,14 @@
 #define ORIG_TAG ".orig"
 #define REJ_TAG ".rej"
 
+#define TYPE_ETHERNET "Ethernet"
+#define TYPE_WIRELESS "Wireless"
+#define TYPE_BRIDGE   "Bridge"
+#define TYPE_BOND     "Bond"
+
 #define IFCFG_DIR SYSCONFDIR"/sysconfig/network"
+
+#define IFCFG_PLUGIN_ERROR (ifcfg_plugin_error_quark ())
+GQuark ifcfg_plugin_error_quark (void);
 
 #endif  /* __COMMON_H__ */

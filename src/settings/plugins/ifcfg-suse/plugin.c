@@ -32,11 +32,11 @@
 #include "plugin.h"
 #include "nm-system-config-interface.h"
 
+#include "utils.h"
 #include "nm-ifcfg-suse-connection.h"
 
 #define IFCFG_PLUGIN_NAME "ifcfg-suse"
 #define IFCFG_PLUGIN_INFO "(C) 2008 - 2011 SUSE.  To report bugs please use the NetworkManager mailing list."
-#define IFCFG_DIR SYSCONFDIR "/sysconfig/network"
 #define CONF_DHCP IFCFG_DIR "/dhcp"
 #define HOSTNAME_FILE "/etc/HOSTNAME"
 
@@ -130,7 +130,7 @@ _internal_new_connection (SCPluginIfcfg *self,
 	                     connection);
 	PLUGIN_PRINT (IFCFG_PLUGIN_NAME, "    read connection '%s'", cid);
 
-	if (nm_ifcfg_connection_get_unmanaged_spec (connection)) {
+	if (nm_ifcfg_suse_connection_get_unmanaged_spec (connection)) {
 		PLUGIN_PRINT (IFCFG_PLUGIN_NAME, "Ignoring connection '%s' and its "
 		              "device due to BOND/BRIDGE/VLAN.", cid);
 	} else {
@@ -191,6 +191,29 @@ commit_cb (NMSettingsConnection *connection, GError *error, gpointer unused)
 }
 
 static void
+remove_connection (SCPluginIfcfg *self, NMIfcfgSUSEConnection *connection)
+{
+	SCPluginIfcfgPrivate *priv = SC_PLUGIN_IFCFG_GET_PRIVATE (self);
+	gboolean managed = FALSE;
+	const char *path;
+
+	g_return_if_fail (self != NULL);
+	g_return_if_fail (connection != NULL);
+
+	managed = !nm_ifcfg_suse_connection_get_unmanaged_spec (connection);
+	path = nm_ifcfg_suse_connection_get_path (connection);
+
+	g_object_ref (connection);
+	g_hash_table_remove (priv->connections, path);
+	nm_settings_connection_signal_remove (NM_SETTINGS_CONNECTION (connection));
+	g_object_unref (connection);
+
+	/* Emit unmanaged changes _after_ removing the connection */
+	if (managed == FALSE)
+		g_signal_emit_by_name (self, NM_SYSTEM_CONFIG_INTERFACE_UNMANAGED_SPECS_CHANGED);
+}
+
+static void
 connection_new_or_changed (SCPluginIfcfg *self,
                            const char *path,
                            NMIfcfgSUSEConnection *existing)
@@ -207,7 +230,7 @@ connection_new_or_changed (SCPluginIfcfg *self,
 		/* Completely new connection */
 		new = _internal_new_connection (self, path, NULL, NULL);
 		if (new) {
-			if (nm_ifcfg_connection_get_unmanaged_spec (new)) {
+			if (nm_ifcfg_suse_connection_get_unmanaged_spec (new)) {
 				g_signal_emit_by_name (self, NM_SYSTEM_CONFIG_INTERFACE_UNMANAGED_SPECS_CHANGED);
 			} else {
 				/* Only managed connections are announced to the settings service */
