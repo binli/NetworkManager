@@ -41,6 +41,8 @@
 #include <wireless.h>
 #undef __user
 
+#include <glib.h>
+#include <glib/gi18n.h>
 #include "common.h"
 #include "shvar.h"
 #include "utils.h"
@@ -48,6 +50,81 @@
 
 
 #include <nm-connection.h>
+
+static NMSetting *
+make_connection_setting (const char *file,
+                         shvarFile *ifcfg,
+                         const char *type,
+                         const char *suggested)
+{
+	NMSettingConnection *s_con;
+	const char *ifcfg_name = NULL;
+	char *new_id = NULL, *uuid = NULL, *value;
+	char *start_mode = NULL;
+	char *ifcfg_id;
+
+	ifcfg_name = utils_get_ifcfg_name (file, TRUE);
+	if (!ifcfg_name)
+		return NULL;
+
+	s_con = NM_SETTING_CONNECTION (nm_setting_connection_new ());
+
+	/* Try the ifcfg file's internally defined name if available */
+	ifcfg_id = svGetValue (ifcfg, "NAME", FALSE);
+	if (ifcfg_id && strlen (ifcfg_id))
+		g_object_set (s_con, NM_SETTING_CONNECTION_ID, ifcfg_id, NULL);
+
+	if (!nm_setting_connection_get_id (s_con)) {
+		if (suggested) {
+			/* For cosmetic reasons, if the suggested name is the same as
+			 * the ifcfg files name, don't use it.  Mainly for wifi so that
+			 * the SSID is shown in the connection ID instead of just "wlan0".
+			 */
+			if (strcmp (ifcfg_name, suggested)) {
+				new_id = g_strdup_printf ("%s %s (%s)", reader_get_prefix (), suggested, ifcfg_name);
+				g_object_set (s_con, NM_SETTING_CONNECTION_ID, new_id, NULL);
+			}
+		}
+
+		/* Use the ifcfg file's name as a last resort */
+		if (!nm_setting_connection_get_id (s_con)) {
+			new_id = g_strdup_printf ("%s %s", reader_get_prefix (), ifcfg_name);
+			g_object_set (s_con, NM_SETTING_CONNECTION_ID, new_id, NULL);
+		}
+	}
+
+	g_free (new_id);
+	g_free (ifcfg_id);
+
+	/* Try for a UUID key before falling back to hashing the file name */
+	uuid = svGetValue (ifcfg, "UUID", FALSE);
+	if (!uuid || !strlen (uuid)) {
+		g_free (uuid);
+		uuid = nm_utils_uuid_generate_from_string (ifcfg->fileName);
+	}
+	g_object_set (s_con,
+	              NM_SETTING_CONNECTION_TYPE, type,
+	              NM_SETTING_CONNECTION_UUID, uuid,
+	              NULL);
+	g_free (uuid);
+
+	/* STARTMODE */
+	start_mode = svGetValue (ifcfg, "STARTMODE", FALSE);
+	if (!strcmp (start_mode, "auto") || 
+			!strcmp (start_mode, "onboot") ||
+			!strcmp (start_mode, "hotplug") ||
+			!strcmp (start_mode, "nfsroot")) {
+		g_object_set (s_con, NM_SETTING_CONNECTION_AUTOCONNECT,
+				TRUE,
+				NULL);
+	} else {
+		g_object_set (s_con, NM_SETTING_CONNECTION_AUTOCONNECT,
+				FALSE,
+				NULL);
+	}
+
+	return NM_SETTING (s_con);
+}
 
 static NMConnection *
 wireless_connection_from_ifcfg (const char *file,
@@ -69,6 +146,16 @@ wired_connection_from_ifcfg (const char *file,
                              GError **error)
 {
 	NMConnection *connection = NULL;
+
+	g_return_val_if_fail (file != NULL, NULL);
+	g_return_val_if_fail (ifcfg != NULL, NULL);
+
+	connection = nm_connection_new ();
+	if (!connection) {
+		g_set_error (error, IFCFG_PLUGIN_ERROR, 0,
+		             "Failed to allocate new connection for %s.", file);
+		return NULL;
+	}
 
 	return connection;
 }
@@ -198,3 +285,10 @@ done:
 
 	return connection;
 }
+
+const char *
+reader_get_prefix (void)
+{
+	return _("System");
+}
+
