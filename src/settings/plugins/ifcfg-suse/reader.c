@@ -43,6 +43,7 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <nm-utils.h>
 #include "common.h"
 #include "shvar.h"
 #include "utils.h"
@@ -91,9 +92,9 @@ make_connection_setting (const char *file,
 			new_id = g_strdup_printf ("%s %s", reader_get_prefix (), ifcfg_name);
 			g_object_set (s_con, NM_SETTING_CONNECTION_ID, new_id, NULL);
 		}
+		g_free (new_id);
 	}
 
-	g_free (new_id);
 	g_free (ifcfg_id);
 
 	/* Try for a UUID key before falling back to hashing the file name */
@@ -106,10 +107,12 @@ make_connection_setting (const char *file,
 	              NM_SETTING_CONNECTION_TYPE, type,
 	              NM_SETTING_CONNECTION_UUID, uuid,
 	              NULL);
+	g_debug ("uuid is %s", uuid);
 	g_free (uuid);
 
 	/* STARTMODE */
 	start_mode = svGetValue (ifcfg, "STARTMODE", FALSE);
+	g_debug ("start_mode is %s", start_mode);
 	if (!strcmp (start_mode, "auto") || 
 			!strcmp (start_mode, "onboot") ||
 			!strcmp (start_mode, "hotplug") ||
@@ -146,10 +149,12 @@ wired_connection_from_ifcfg (const char *file,
                              GError **error)
 {
 	NMConnection *connection = NULL;
+	NMSetting *con_setting = NULL;
 
 	g_return_val_if_fail (file != NULL, NULL);
 	g_return_val_if_fail (ifcfg != NULL, NULL);
 
+	g_debug ("wired_connection_from_ifcfg...");
 	connection = nm_connection_new ();
 	if (!connection) {
 		g_set_error (error, IFCFG_PLUGIN_ERROR, 0,
@@ -171,6 +176,7 @@ wired_connection_from_ifcfg (const char *file,
 		g_object_unref (connection);
 		return NULL;
 	}
+	g_debug ("nm_connection_verify is okay");
 
 	return connection;
 }
@@ -184,6 +190,7 @@ is_wireless_device (const char *iface)
 	gboolean is_wireless = FALSE;
 
 	g_return_val_if_fail (iface != NULL, FALSE);
+	g_debug ("is_wireless_device...");
 
 	fd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (fd == -1)
@@ -220,6 +227,7 @@ static gboolean
 is_bond_device (shvarFile *parsed)
 {
 	g_return_val_if_fail (parsed != NULL, FALSE);
+	g_debug ("is_bond_device...");
 
 	/* BONDING_MASTER set to 'yes' to identify this interface as a bonding interface */
 	if (svTrueValue (parsed, "BONDING_MASTER", FALSE))
@@ -246,19 +254,23 @@ connection_from_file (const char *filename,
 	gboolean nm_controlled = TRUE;
 	GError *error = NULL;
 
+	g_debug ("connection_from_file(%s)...", filename);
 	ifcfg_name = utils_get_ifcfg_name (filename, TRUE);
-	if (!ifcfg_name) {
+	if (!ifcfg_name || (strlen(ifcfg_name) == 0)) {
 		g_set_error (out_error, IFCFG_PLUGIN_ERROR, 0,
-		             "Ignoring connection '%s' because it's not an ifcfg file.", filename);
+		             "Ignoring connection '%s' because it's not a valid ifcfg file.",
+					 filename);
 		return NULL;
 	}
+
+	g_debug ("ifcfg_name is %s", ifcfg_name);
 
 	if (!strcmp (ifcfg_name, "lo")) {
 		if (ignore_error)
 			*ignore_error = TRUE;
 		g_set_error (&error, IFCFG_PLUGIN_ERROR, 0,
 				"Ignoring loopback device config.");
-		goto done;
+		return NULL;
 	}
 
 	parsed = svNewFile (filename);
@@ -278,7 +290,10 @@ connection_from_file (const char *filename,
 			type = g_strdup (TYPE_ETHERNET);
 	} else {
 	}
+	g_debug ("type is %s", type);
+
 	name = svGetValue (parsed, "NAME", FALSE);
+	g_debug ("name is %s", name);
 
 	/* Construct the connection */
 	if (!strcasecmp (type, TYPE_ETHERNET))

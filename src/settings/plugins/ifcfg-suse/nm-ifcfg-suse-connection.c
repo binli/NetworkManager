@@ -65,6 +65,7 @@ nm_ifcfg_suse_connection_new (const char *full_path,
 	char *routesfile = NULL;
 
 	g_return_val_if_fail (full_path != NULL, NULL);
+	g_debug ("nm_ifcfg_suse_connection_new...");
 
 	/* If we're given a connection already, prefer that instead of re-reading */
 	if (source)
@@ -128,11 +129,13 @@ do_delete (NMSettingsConnection *connection,
 static void
 nm_ifcfg_suse_connection_init (NMIfcfgSUSEConnection *connection)
 {
+	g_debug ("nm_ifcfg_suse_connection_init...");
 }
 
 static void
 finalize (GObject *object)
 {
+	g_debug ("finalize...");
 	/*NMIfcfgSUSEConnectionPrivate *priv = NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (object);
 	NMInotifyHelper *ih;
 
@@ -200,6 +203,8 @@ nm_ifcfg_suse_connection_class_init (NMIfcfgSUSEConnectionClass *ifcfg_suse_conn
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (ifcfg_suse_connection_class);
 	NMSettingsConnectionClass *settings_class = NM_SETTINGS_CONNECTION_CLASS (ifcfg_suse_connection_class);
+
+	g_debug ("nm_ifcfg_suse_connection_class_init...");
 
 	g_type_class_add_private (ifcfg_suse_connection_class, sizeof (NMIfcfgSUSEConnectionPrivate));
 
