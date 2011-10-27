@@ -58,7 +58,7 @@ nm_ifcfg_suse_connection_new (const char *full_path,
                               gboolean *ignore_error)
 {
 	GObject *object;
-	//NMIfcfgSUSEConnectionPrivate *priv;
+	NMIfcfgSUSEConnectionPrivate *priv;
 	NMConnection *tmp;
 	char *unmanaged = NULL;
 	char *ifroutefile = NULL;
@@ -86,6 +86,16 @@ nm_ifcfg_suse_connection_new (const char *full_path,
 	                                   NULL);
 	if (!object)
 		goto out;
+
+	/* Update our settings with what was read from the file */
+	if (!nm_settings_connection_replace_settings (NM_SETTINGS_CONNECTION (object), tmp, error)) {
+		g_object_unref (object);
+		object = NULL;
+		goto out;
+	}
+
+	priv = NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (object);
+	priv->path = g_strdup (full_path);
 
 out:
 	g_object_unref (tmp);
@@ -135,9 +145,12 @@ nm_ifcfg_suse_connection_init (NMIfcfgSUSEConnection *connection)
 static void
 finalize (GObject *object)
 {
+	NMIfcfgSUSEConnectionPrivate *priv = NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (object);
+
 	g_debug ("finalize...");
-	/*NMIfcfgSUSEConnectionPrivate *priv = NM_IFCFG_SUSE_CONNECTION_GET_PRIVATE (object);
-	NMInotifyHelper *ih;
+
+	g_free (priv->path);
+	/*NMInotifyHelper *ih;
 
 	nm_connection_clear_secrets (NM_CONNECTION (object));
 
@@ -146,7 +159,6 @@ finalize (GObject *object)
 	if (priv->ih_event_id)
 		g_signal_handler_disconnect (ih, priv->ih_event_id);
 
-	g_free (priv->path);
 	if (priv->file_wd >= 0)
 		nm_inotify_helper_remove_watch (ih, priv->file_wd);
 

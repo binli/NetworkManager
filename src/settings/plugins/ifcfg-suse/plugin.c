@@ -35,8 +35,6 @@
 #include "utils.h"
 #include "nm-ifcfg-suse-connection.h"
 
-#define IFCFG_PLUGIN_NAME "ifcfg-suse"
-#define IFCFG_PLUGIN_INFO "(C) 2008 - 2011 SUSE.  To report bugs please use the NetworkManager mailing list."
 #define CONF_DHCP IFCFG_DIR "/dhcp"
 #define HOSTNAME_FILE "/etc/HOSTNAME"
 
@@ -123,8 +121,10 @@ _internal_new_connection (SCPluginIfcfg *self,
 	}
 
 	cid = nm_connection_get_id (NM_CONNECTION (connection));
+	g_debug ("cid is %s", cid);
 	g_assert (cid);
 
+	g_debug ("get_path is %s", nm_ifcfg_suse_connection_get_path(connection));
 	g_hash_table_insert (priv->connections,
 	                     (gpointer) nm_ifcfg_suse_connection_get_path (connection),
 	                     connection);
@@ -154,6 +154,7 @@ read_connections (SCPluginIfcfg *plugin)
 	GDir *dir;
 	GError *err = NULL;
 
+	g_debug ("read_connections...");
 	dir = g_dir_open (IFCFG_DIR, 0, &err);
 	if (dir) {
 		const char *item;
@@ -380,6 +381,7 @@ get_connections (NMSystemConfigInterface *config)
 	GHashTableIter iter;
 	gpointer value;
 
+	g_debug ("get_connections...");
 	if (!priv->connections) {
 		setup_ifcfg_monitoring (plugin);
 		read_connections (plugin);

@@ -38,6 +38,9 @@
 #define RPMSAVE_TAG ".rpmsave"
 #define SCPMBACKUP_TAG ".scpmbackup"
 
+#define IFCFG_PLUGIN_NAME "ifcfg-suse"
+#define IFCFG_PLUGIN_INFO "(C) 2008 - 2011 SUSE.  To report bugs please use the NetworkManager mailing list."
+
 #define TYPE_ETHERNET "Ethernet"
 #define TYPE_WIRELESS "Wireless"
 #define TYPE_BRIDGE   "Bridge"

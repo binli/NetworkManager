@@ -51,6 +51,28 @@
 
 
 #include <nm-connection.h>
+#include <nm-setting-connection.h>
+#include <nm-setting-wired.h>
+#include <nm-setting-8021x.h>
+
+#define PLUGIN_PRINT(pname, fmt, args...) \
+	{ g_message ("   " pname ": " fmt, ##args); }
+
+#define PLUGIN_WARN(pname, fmt, args...) \
+	{ g_warning ("   " pname ": " fmt, ##args); }
+
+static gboolean
+get_int (const char *str, int *value)
+{
+	char *e;
+
+	errno = 0;
+	*value = strtol (str, &e, 0);
+	if (errno || *e != '\0')
+		return FALSE;
+
+	return TRUE;
+}
 
 static NMSetting *
 make_connection_setting (const char *file,
@@ -141,6 +163,38 @@ wireless_connection_from_ifcfg (const char *file,
 	return connection;
 }
 
+static NMSetting *
+make_wired_setting (shvarFile *ifcfg,
+                    const char *file,
+                    gboolean nm_controlled,
+                    char **unmanaged,
+                    NMSetting8021x **s_8021x,
+                    GError **error)
+{
+	NMSettingWired *s_wired;
+
+	char *value = NULL;
+	int mtu = 0;
+
+	g_debug ("make_wired_setting...");
+	s_wired = NM_SETTING_WIRED (nm_setting_wired_new ());
+
+	value = svGetValue (ifcfg, "MTU", FALSE);
+	if (value) {
+		if (get_int (value, &mtu)) {
+			if (mtu >= 0 && mtu < 65536)
+				g_object_set (s_wired, NM_SETTING_WIRED_MTU, mtu, NULL);
+		} else {
+			/* Shouldn't be fatal... */
+			PLUGIN_WARN (IFCFG_PLUGIN_NAME, "    warning: invalid MTU '%s'", value);
+		}
+		g_free (value);
+	}
+
+	g_debug ("make_wired_setting finish");
+	return (NMSetting *) s_wired;
+}
+
 static NMConnection *
 wired_connection_from_ifcfg (const char *file,
                              shvarFile *ifcfg,
@@ -150,6 +204,8 @@ wired_connection_from_ifcfg (const char *file,
 {
 	NMConnection *connection = NULL;
 	NMSetting *con_setting = NULL;
+	NMSetting *wired_setting = NULL;
+	NMSetting8021x *s_8021x = NULL;
 
 	g_return_val_if_fail (file != NULL, NULL);
 	g_return_val_if_fail (ifcfg != NULL, NULL);
@@ -171,6 +227,16 @@ wired_connection_from_ifcfg (const char *file,
 	}
 
 	nm_connection_add_setting (connection, con_setting);
+
+	wired_setting = make_wired_setting (ifcfg, file, nm_controlled, unmanaged, &s_8021x, error);
+	if (!wired_setting) {
+		g_object_unref (connection);
+		return NULL;
+	}
+	nm_connection_add_setting (connection, wired_setting);
+
+	if (s_8021x)
+		nm_connection_add_setting (connection, NM_SETTING (s_8021x));
 
 	if (!nm_connection_verify (connection, error)) {
 		g_object_unref (connection);
