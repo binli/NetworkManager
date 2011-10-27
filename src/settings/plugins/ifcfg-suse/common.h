@@ -29,10 +29,14 @@
 #define IFROUTE_TAG "ifroute-" /* routes used only for specific interface */
 #define ROUTES_TAG "routes" /* routes used for every interface */
 
+/* sysconfig's script also ignore below file*/
 #define BAK_TAG ".bak"
 #define TILDE_TAG "~"
 #define ORIG_TAG ".orig"
 #define REJ_TAG ".rej"
+#define RPMNEW_TAG ".rpmnew"
+#define RPMSAVE_TAG ".rpmsave"
+#define SCPMBACKUP_TAG ".scpmbackup"
 
 #define TYPE_ETHERNET "Ethernet"
 #define TYPE_WIRELESS "Wireless"

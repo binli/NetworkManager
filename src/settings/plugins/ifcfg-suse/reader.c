@@ -157,6 +157,21 @@ wired_connection_from_ifcfg (const char *file,
 		return NULL;
 	}
 
+	con_setting = make_connection_setting (file, ifcfg, NM_SETTING_WIRED_SETTING_NAME, NULL);
+	if (!con_setting) {
+		g_set_error (error, IFCFG_PLUGIN_ERROR, 0,
+		             "Failed to create connection setting.");
+		g_object_unref (connection);
+		return NULL;
+	}
+
+	nm_connection_add_setting (connection, con_setting);
+
+	if (!nm_connection_verify (connection, error)) {
+		g_object_unref (connection);
+		return NULL;
+	}
+
 	return connection;
 }
 

@@ -65,7 +65,10 @@ utils_should_ignore_file (const char *filename, gboolean only_ifcfg)
 	    && !check_suffix (base, BAK_TAG)
 	    && !check_suffix (base, TILDE_TAG)
 	    && !check_suffix (base, ORIG_TAG)
-	    && !check_suffix (base, REJ_TAG))
+	    && !check_suffix (base, REJ_TAG)
+	    && !check_suffix (base, RPMNEW_TAG)
+	    && !check_suffix (base, RPMSAVE_TAG)
+	    && !check_suffix (base, SCPMBACKUP_TAG))
 		ignore = FALSE;
 
 	g_free (base);
